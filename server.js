@@ -31,13 +31,14 @@ io.sockets.on('connection', function (cc) {
 	console.log('Clients:', clients.length);
 	clients.forEach(function(c) {
 		c.send(JSON.stringify({'clients':clients.length}));
-	})
+	});
 
 	cc.on('message', function(data){
-		data = JSON.parse(data);
-		data.clients = clients.length;
+		//data = JSON.parse(data);
+		//data.clients = clients.length;
 		clients.forEach(function(c) {
-			c.send(JSON.stringify(data));
+			//c.send(JSON.stringify(data));
+			c.send(data);
 		});
 	});
 

@@ -145,7 +145,7 @@ socket.on('connect',function() {
 socket.on('message', function(data){
 		data = JSON.parse(data)
 		console.log(data);
-		document.getElementById('clients').innerHTML = data.clients;
+		if(data.clients) document.getElementById('clients').innerHTML = data.clients;
 		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points);
 	});
 
