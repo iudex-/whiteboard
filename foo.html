@@ -3,10 +3,42 @@
 <head>
 <title>whiteboard</title>
 </head>
-<body onload(foo)>
-<canvas id="canvas" width="500" height="500" style="border: 1px solid black;"></canvas>
-<div>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+}
+div {
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	margin: 0 auto;
+	width: 90%
+}
+#canvas {
+	/*border: 1px solid #ccc;*/
+}
+#footer {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	background: #ccc;
+	width: 100%;
+}
+span {
+	padding-right: 20px;
+}
+</style>
+<body>
+	<canvas id="canvas" width="500" height="500"></canvas>
+<div id="footer">
+	clients:
+	<span id="clients"></span>
+	x:
 	<span id="x"></span>
+	y:
 	<span id="y"></span>
 </div>
 <script src="./socket.io/socket.io.js"></script>
@@ -15,8 +47,18 @@ var points = [];
 
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-ctx.fillStyle = "#ff0000";
-ctx.strokeStyle = "#ff0000";
+var color = "#ff0000";
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight-10;
+/*
+window.onresize = function(e){
+	canvas.width = window.innerWidth-2;
+	canvas.height = window.innerHeight-10;
+} */
+
+ctx.fillStyle = color;
+ctx.strokeStyle = color;
 ctx.lineWidth = 3.0;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
@@ -52,7 +94,9 @@ canvas.onmouseup = function(e) {
 	draw = false;
 	//console.log(points);
 	if(points.length>0) {
-		send(JSON.stringify(points));
+		var msgobj= {'draw': {'color': color, 'points': points}};
+		console.log(msgobj);
+		send(JSON.stringify( msgobj ));
 	}
 	points = [];
 };
@@ -99,8 +143,10 @@ socket.on('connect',function() {
 	console.log('Client has connected to the server!');
 });
 socket.on('message', function(data){
+		data = JSON.parse(data)
 		console.log(data);
-		drawpoints(JSON.parse(data));
+		document.getElementById('clients').innerHTML = data.clients;
+		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points);
 	});
 
 socket.on('disconnect',function() {
