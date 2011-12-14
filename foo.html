@@ -119,8 +119,10 @@ canvas.onmousemove = function(e) {
 	points[points.length] = [x,y];
 };
 
-var drawpoints = function(a) {
+var drawpoints = function(a,c) {
 	ctx.closePath();
+	ctx.fillStyle = c;
+	ctx.strokeStyle = c;
 	ctx.beginPath();
 	if(a.length>1) {
 		ctx.moveTo(a[0][0], a[0][1]);
@@ -135,6 +137,8 @@ var drawpoints = function(a) {
 		ctx.closePath();
 		ctx.fill();
 	}
+	ctx.fillStyle = color;
+	ctx.strokeStyle = color;
 	ctx.beginPath();
 };
 
@@ -147,7 +151,7 @@ socket.on('message', function(data){
 		data = JSON.parse(data)
 		console.log(data);
 		if(data.clients) document.getElementById('clients').innerHTML = data.clients;
-		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points);
+		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points,data.draw.color);
 	});
 
 socket.on('disconnect',function() {
@@ -159,7 +163,7 @@ function send(message) {
 
 
 var viergewinnt = function(){
-	send(JSON.stringify({'draw':{'points':[
+	send(JSON.stringify({'draw':{'color':'#000000','points':[
 		[50,50],[400,50],[400,350],[50,350],[50,50],
 		[100,50],[100,350],[150,350],[150,50],[200,50],[200,350],[250,350],[250,50],[300,50],[300,350],[350,350],[350,50],
 		[400,50],[400,100],[50,100],[50,150],[400,150],[400,200],[50,200],[50,250],[400,250],[400,300],[50,300]
