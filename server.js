@@ -25,6 +25,7 @@ app.listen(parseInt(process.env.C9_PORT, 10) || process.env.PORT || 1337);
 io.set('log level', 1);
 
 var clients = [];
+var draws = [];
 
 io.sockets.on('connection', function (cc) {
 	clients.push(cc);
@@ -32,14 +33,30 @@ io.sockets.on('connection', function (cc) {
 	clients.forEach(function(c) {
 		c.send(JSON.stringify({'clients':clients.length}));
 	});
+	if(draws) {
+		console.log("Send points to new client");
+		for(var i=0; i<draws.length; i++) {
+			cc.send(JSON.stringify({draw: draws[i]}));
+		}
+	}
 
 	cc.on('message', function(data){
-		//data = JSON.parse(data);
-		//data.clients = clients.length;
+		var pdata = "";
+		try {
+			pdata = JSON.parse(data);
+		} catch(e) {
+			console.log("pasring failed! ",e);
+		}
 		clients.forEach(function(c) {
 			//c.send(JSON.stringify(data));
 			c.send(data);
 		});
+		if(pdata.draw && pdata.draw.color && pdata.draw.points && pdata.draw.points.length>0) draws.push(pdata.draw);
+		if(pdata.clear) draws = [];
+		
+		console.log(pdata.draw);
+		console.log(draws);
+		
 	});
 
 	cc.on('disconnect',function(){

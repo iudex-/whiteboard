@@ -40,6 +40,7 @@ span {
 	<span id="x"></span>
 	y:
 	<span id="y"></span>
+	<span><input type="button" id="clear"value="clear" /></span>
 </div>
 <script src="./socket.io/socket.io.js"></script>
 <script>
@@ -66,6 +67,15 @@ ctx.lineJoin = 'round';
 
 var xx = document.getElementById('x');
 var yy = document.getElementById('y');
+
+var clearlnk = document.getElementById("clear");
+clearlnk.onmousedown = function(e) {
+	send(JSON.stringify({'clear': true}));
+	//clear();
+}
+console.log(clearlnk);
+
+
 
 ctx.beginPath();
 var x = null;
@@ -119,6 +129,12 @@ canvas.onmousemove = function(e) {
 	points[points.length] = [x,y];
 };
 
+var clear = function() {
+	//canvas.width = canvas.width;
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	return false;
+}
+
 var drawpoints = function(a,c) {
 	ctx.closePath();
 	ctx.fillStyle = c;
@@ -152,6 +168,7 @@ socket.on('message', function(data){
 		console.log(data);
 		if(data.clients) document.getElementById('clients').innerHTML = data.clients;
 		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points,data.draw.color);
+		if(data.clear) clear();
 	});
 
 socket.on('disconnect',function() {
