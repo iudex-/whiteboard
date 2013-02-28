@@ -85,6 +85,7 @@ clearlnk.onmousedown = function(e) {
 console.log(clearlnk);
 
 var colorpicker = document.getElementById("colorpicker");
+colorpicker.value = color;
 colorpicker.onchange = function() {
     color = colorpicker.value;
     console.log("picked color: "+color);
