@@ -105,6 +105,9 @@ canvas.onmousedown = function(e) {
 	xx.innerHTML = x;
 	yy.innerHTML = y;
 
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+
 	ctx.closePath();
 	ctx.arc(x, y, 2, 0, Math.PI*2, true); 
 	ctx.closePath();
