@@ -30,8 +30,17 @@ div {
 span {
 	padding-right: 20px;
 }
+
+#colorpicker {
+    width: 30px;
+    height: 30px;
+    position: fixed;
+    top: 0;
+    right:0;
+}
 </style>
 <body>
+    <input type="color" id="colorpicker" />
 	<canvas id="canvas" width="500" height="500"></canvas>
 <div id="footer">
 	clients:
@@ -41,7 +50,6 @@ span {
 	y:
 	<span id="y"></span>
 	<span><input type="button" id="clear"value="clear" /></span>
-    <span><input type="color" id="colorpicker" /></span>
 </div>
 <script src="./socket.io/socket.io.js"></script>
 <script>
