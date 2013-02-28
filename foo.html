@@ -41,6 +41,7 @@ span {
 	y:
 	<span id="y"></span>
 	<span><input type="button" id="clear"value="clear" /></span>
+    <span><input type="color" id="colorpicker" /></span>
 </div>
 <script src="./socket.io/socket.io.js"></script>
 <script>
@@ -75,6 +76,11 @@ clearlnk.onmousedown = function(e) {
 }
 console.log(clearlnk);
 
+var colorpicker = document.getElementById("colorpicker");
+colorpicker.onchange = function() {
+    color = colorpicker.value;
+    console.log("picked color: "+color);
+}
 
 
 ctx.beginPath();
