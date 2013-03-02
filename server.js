@@ -54,8 +54,8 @@ io.sockets.on('connection', function (cc) {
 		if(pdata.draw && pdata.draw.color && pdata.draw.points && pdata.draw.points.length>0) draws.push(pdata.draw);
 		if(pdata.clear) draws = [];
 		
-		console.log(pdata.draw);
-		console.log(draws);
+		//console.log(pdata.draw);
+		//console.log(draws);
 		
 	});
 

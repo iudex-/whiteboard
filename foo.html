@@ -7,6 +7,7 @@
 body {
 	margin: 0;
 	padding: 0;
+	font-family: monospace;
 }
 div {
 	margin: 0;
@@ -20,13 +21,7 @@ div {
 #canvas {
 	/*border: 1px solid #ccc;*/
 }
-#footer {
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	background: #ccc;
-	width: 100%;
-}
+
 span {
 	padding-right: 20px;
 }
@@ -34,31 +29,113 @@ span {
 #colorpicker {
     width: 30px;
     height: 30px;
-    position: fixed;
-    top: 0;
-    right:0;
+}
+#colors {
+	position: fixed;
+	left: 0;
+	bottom: 0px;
+	background: #333;
+	width: 100%;
+	height: 50px;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+#colors li {
+	width: 50px;
+	height: 50px;
+	float: left;
+	/*border: 1px solid #fff;
+	border-radius: 3px;
+	margin: 0 2px 0 0; */
+	moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#colors #footer{ /*
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	background: #ccc;
+	width: 100%; */
+	float: right;
+	width: 300px;
+	border: 0;
+	color: #fff;
+	text-align: right;
+}
+#colors #clear {
+	float: right;
+}
+#colors #clear input {
+	width:50px;
+	height:50px;
 }
 </style>
 <body>
-    <input type="color" id="colorpicker" />
+    
 	<canvas id="canvas" width="500" height="500"></canvas>
-<div id="footer">
-	clients:
-	<span id="clients"></span>
-	x:
-	<span id="x"></span>
-	y:
-	<span id="y"></span>
-	<span><input type="button" id="clear"value="clear" /></span>
-</div>
+<ul id="colors">
+	<li id="clear"><input type="button" value="clear" /></li>
+	<li id="footer">
+		clients: <span id="clients"></span><br />
+		x: <span id="x"></span>
+		y: <span id="y"></span>
+	</li>
+	<li class="color" value="#000000" style="background-color: #000000"></li>
+	<li class="color" value="#ff0000" style="background-color: #ff0000"></li>
+	<li class="color" value="#00ff00" style="background-color: #00ff00"></li>
+	<li class="color" value="#0000ff" style="background-color: #0000ff"></li>
+	<li><input type="color" id="colorpicker" /></li>
+</ul>
 <script src="./socket.io/socket.io.js"></script>
 <script>
+
 var points = [];
 
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 //var color = "#ff0000";
 var color = 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
+var linewidth = 3.0;
+
+
+var colorpick = function() {
+	color = this.getAttribute("value");
+	console.log("color pick: ", color);
+};
+var colors = document.getElementsByClassName("color");
+for(var i = 0; i<colors.length; i++) {
+	var ele = colors[i];
+	console.log(ele, ele.getAttribute("value"));
+	ele.onclick = colorpick;
+}
+var colors = document.getElementById("colors");
+var colorpicker = document.getElementById("colorpicker");
+var addcolor = function(newcolor, removeable) {
+	
+	var pickerli = colors.removeChild(colors.lastElementChild);
+	var newli = colors.lastElementChild.cloneNode();
+	newli.setAttribute("value", newcolor);
+	newli.setAttribute("style", "background-color:"+newcolor)	
+	newli.onclick = colorpick;
+	if(removeable) {
+		newli.draggable = true;
+		newli.addEventListener('dragend', function() { colors.removeChild(this); }, false);
+	}
+	colors.appendChild(newli);
+	colors.appendChild(pickerli);
+	
+	console.log("picked color: "+color);
+}
+//colorpicker.value = color;
+colorpicker.onchange = function () {
+	color = colorpicker.value;
+	addcolor(color, true);
+};
+addcolor(color,false);
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight-10;
@@ -70,7 +147,7 @@ window.onresize = function(e){
 
 ctx.fillStyle = color;
 ctx.strokeStyle = color;
-ctx.lineWidth = 3.0;
+ctx.lineWidth = linewidth;
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
 
@@ -83,13 +160,6 @@ clearlnk.onmousedown = function(e) {
 	//clear();
 }
 console.log(clearlnk);
-
-var colorpicker = document.getElementById("colorpicker");
-colorpicker.value = color;
-colorpicker.onchange = function() {
-    color = colorpicker.value;
-    console.log("picked color: "+color);
-}
 
 
 ctx.beginPath();
@@ -142,8 +212,10 @@ canvas.onmousemove = function(e) {
 	}
 	
 	ctx.lineTo(x, y);
+	ctx.lineWidth = 1.0;
 	ctx.stroke();
-	ctx.moveTo(x, y);
+	ctx.lineWidth = linewidth;
+	//ctx.moveTo(x, y);
 	points[points.length] = [x,y];
 };
 
@@ -163,9 +235,9 @@ var drawpoints = function(a,c) {
 		for(var i=0; i<a.length; i++) {
 			var point = a[i];
 			ctx.lineTo(point[0], point[1]);
-			ctx.stroke();
-			ctx.moveTo(point[0], point[1]);
+			//ctx.moveTo(point[0], point[1]);
 		}
+		ctx.stroke();
 	} else if(a.length=1) {
 		ctx.arc(a[0][0], a[0][1], 2, 0, Math.PI*2, true); 
 		ctx.closePath();
