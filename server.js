@@ -44,6 +44,7 @@ io.sockets.on('connection', function (cc) {
 		}
 	});
 	cc.on("clear", function(data){
+		delete rooms[room];
 		io.sockets.in(room).emit("clear", data);
 	});
 	cc.on("draw", function(data){
