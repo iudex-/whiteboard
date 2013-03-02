@@ -195,7 +195,7 @@ canvas.onmouseup = function(e) {
 	//console.log(points);
 	if(points.length>0) {
 		var msgobj= {'draw': {'color': color, 'points': points}};
-		console.log(msgobj);
+		//console.log(msgobj);
 		send(JSON.stringify( msgobj ));
 	}
 	points = [];
@@ -256,7 +256,7 @@ socket.on('connect',function() {
 });
 socket.on('message', function(data){
 		data = JSON.parse(data)
-		console.log(data);
+		//console.log(data);
 		if(data.clients) document.getElementById('clients').innerHTML = data.clients;
 		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points,data.draw.color);
 		if(data.clear) clear();
