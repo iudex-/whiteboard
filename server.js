@@ -24,46 +24,36 @@ io.configure(function () {
 app.listen(parseInt(process.env.C9_PORT, 10) || process.env.PORT || 1337);
 io.set('log level', 1);
 
-var clients = [];
+var clients = 0;
 var draws = [];
 
+var rooms = {}; // contains draw lists 
+
 io.sockets.on('connection', function (cc) {
-	clients.push(cc);
-	console.log('Clients:', clients.length);
-	clients.forEach(function(c) {
-		c.send(JSON.stringify({'clients':clients.length}));
-	});
-	if(draws) {
-		console.log("Send points to new client");
-		for(var i=0; i<draws.length; i++) {
-			cc.send(JSON.stringify({draw: draws[i]}));
-		}
-	}
-
-	cc.on('message', function(data){
-		var pdata = "";
-		try {
-			pdata = JSON.parse(data);
-		} catch(e) {
-			console.log("pasring failed! ",e);
-		}
-		clients.forEach(function(c) {
-			//c.send(JSON.stringify(data));
-			c.send(data);
-		});
-		if(pdata.draw && pdata.draw.color && pdata.draw.points && pdata.draw.points.length>0) draws.push(pdata.draw);
-		if(pdata.clear) draws = [];
+	var room = "";
+	cc.on('room', function(data){
+		room = String(data);
+		cc.join(room);
+		io.sockets.in(room).emit( "clients", io.sockets.clients(room).length );
+		console.log("Clients in \""+room+"\": ", io.sockets.clients(room).length );
 		
-		//console.log(pdata.draw);
-		//console.log(draws);
+		if(rooms[room]) {
+			for(var i=0; i<rooms[room].length; i++) {
+				cc.emit("draw", rooms[room][i]);
+			}
+		}
+	});
+	cc.on("clear", function(data){
+		io.sockets.in(room).emit("clear", data);
+	});
+	cc.on("draw", function(data){
+		io.sockets.in(room).emit("draw", data);
+		if(rooms[room]==undefined) rooms[room] = [];
+		rooms[room].push(data);
 		
 	});
-
 	cc.on('disconnect',function(){
-		clients.remove(cc);
-		clients.forEach(function(c) {
-			c.send(JSON.stringify({'clients':clients.length}));
-		});
-		console.log('Clients:', clients.length);
+		io.sockets.in(room).emit( 'clients', io.sockets.clients(room).length );
+		console.log("Clients in \""+room+"\": ", io.sockets.clients(room).length );
 	});
 });

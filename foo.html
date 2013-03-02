@@ -157,7 +157,7 @@ var yy = document.getElementById('y');
 
 var clearlnk = document.getElementById("clear");
 clearlnk.onmousedown = function(e) {
-	send(JSON.stringify({'clear': true}));
+	socket.emit('clear');
 	//clear();
 }
 console.log(clearlnk);
@@ -192,12 +192,7 @@ canvas.onmousedown = function(e) {
 
 canvas.onmouseup = function(e) {
 	draw = false;
-	//console.log(points);
-	if(points.length>0) {
-		var msgobj= {'draw': {'color': color, 'points': points}};
-		//console.log(msgobj);
-		send(JSON.stringify( msgobj ));
-	}
+	socket.emit('draw', {'color': color, 'points': points} );
 	points = [];
 };
 canvas.onmousemove = function(e) {
@@ -207,11 +202,9 @@ canvas.onmousemove = function(e) {
 	y -= canvas.offsetTop;
 	xx.innerHTML = x;
 	yy.innerHTML = y;
-
 	if (!draw) {
 		return;
 	}
-	
 	ctx.lineTo(x, y);
 	ctx.lineWidth = 1.0;
 	ctx.stroke();
@@ -225,7 +218,6 @@ var clear = function() {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 	return false;
 }
-
 var drawpoints = function(a,c) {
 	ctx.closePath();
 	ctx.fillStyle = c;
@@ -250,32 +242,28 @@ var drawpoints = function(a,c) {
 };
 
 var socket = new io.connect();
-console.log(socket);
-socket.on('connect',function() {
+socket.on('connect',function() {	
+	socket.emit('room', window.location.pathname.substr(1));
 	console.log('Client has connected to the server!');
 });
-socket.on('message', function(data){
-		data = JSON.parse(data)
-		//console.log(data);
-		if(data.clients) document.getElementById('clients').innerHTML = data.clients;
-		if(data.draw && data.draw.points && data.draw.points.length>0) drawpoints(data.draw.points,data.draw.color);
-		if(data.clear) clear();
-	});
-
+socket.on('clear', clear);
+socket.on('clients', function(data) {
+	document.getElementById('clients').innerHTML = String(data);
+});
+socket.on('draw', function(data) {
+	if(data.points && data.points.length>0) drawpoints(data.points,data.color);
+});
 socket.on('disconnect',function() {
 	console.log('The client has disconnected!');
 });
-function send(message) {
-	socket.send(message);
-}
-
 
 var viergewinnt = function(){
-	send(JSON.stringify({'draw':{'color':'#000000','points':[
+	socket.emit('draw', {'color':'#000000','points':[
 		[50,50],[400,50],[400,350],[50,350],[50,50],
 		[100,50],[100,350],[150,350],[150,50],[200,50],[200,350],[250,350],[250,50],[300,50],[300,350],[350,350],[350,50],
-		[400,50],[400,100],[50,100],[50,150],[400,150],[400,200],[50,200],[50,250],[400,250],[400,300],[50,300]
-	]}}));   
-}
+		[400,50],[400,100],[50,100],[50,150],[400,150],[400,200],[50,200],[50,250],[400,250],[400,300],[50,300] ] }
+	);   
+};
+
 </script>
 </body>
