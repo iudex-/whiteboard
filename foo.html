@@ -124,6 +124,7 @@ var addcolor = function(newcolor, removeable) {
 	if(removeable) {
 		newli.draggable = true;
 		newli.addEventListener('dragend', function() { colors.removeChild(this); }, false);
+		newli.addEventListener('dblclick', function() { colors.removeChild(this); }, false);
 	}
 	colors.appendChild(newli);
 	colors.appendChild(pickerli);
