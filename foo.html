@@ -208,8 +208,8 @@ canvas.onmousemove = function(e) {
 	ctx.lineTo(x, y);
 	ctx.lineWidth = 1.0;
 	ctx.stroke();
+	ctx.moveTo(x, y); // DO NOT REMOVE! fixes filled paths
 	ctx.lineWidth = linewidth;
-	//ctx.moveTo(x, y);
 	points[points.length] = [x,y];
 };
 
